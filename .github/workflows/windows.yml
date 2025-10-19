@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019]
+        os: [windows-latest]
         architecture: [x86, x64]
     env:
       ARCH: ${{ matrix.architecture }}
@@ -86,8 +86,9 @@ jobs:
           echo "* AirSpy: `git show --format='%h (%s, %as)' --no-patch`" >> $GITHUB_WORKSPACE/release_notes.md
 
       - name: BladeRF download
+        if: ${{ matrix.architecture == 'x64' }}
         run: |
-          wget -nv -O bladerf.exe -nv https://www.nuand.com/windows_installers/bladeRF-win-installer-2021.03.exe
+          wget -nv -O bladerf.exe -nv https://github.com/Nuand/bladeRF/releases/download/2024.05/bladeRF-win-installer-2024.05.exe
           innoextract bladerf.exe -d bladerf
           cp bladerf/app/include/* dist/include
           cp bladerf/app/$ARCH/* dist
@@ -95,7 +96,7 @@ jobs:
 
       - name: HackRF build
         run: |
-          git clone --depth 1 https://github.com/greatscottgadgets/hackrf
+          git clone --branch v2024.02.1 --depth 1 https://github.com/greatscottgadgets/hackrf
           mkdir hackrf/host/build && cd hackrf/host/build
           cmake -A $CMAKE_ARCH -DCMAKE_BUILD_TYPE=Release\
                 -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/VS2019/MS$ARCH_NUM/Release/lib/libusb-1.0.lib \
@@ -121,7 +122,6 @@ jobs:
           cmake --build . --parallel $NUMBER_OF_PROCESSORS --config Release
           cmake --install . --prefix $GITHUB_WORKSPACE/dist --config Release
           echo "* LimeSuite: `git show --format='%h (%s, %as)' --no-patch`" >> $GITHUB_WORKSPACE/release_notes.md
-
 
       - name: RTL-SDR build
         run: |
@@ -162,17 +162,16 @@ jobs:
       - name: SDRPlay download
         run: |
           mkdir sdrplay && cd sdrplay
-          wget -nv -O sdrplay.exe https://www.sdrplay.com/software/SDRplay_RSP_API-Windows-2.13.1.exe
+          wget -nv -O sdrplay.exe https://www.sdrplay.com/software/SDRplay_RSP_API-Windows-3.15.exe
           innoextract sdrplay.exe
           cp app/API/inc/* ../dist/include
-          mv ../dist/include/mir_sdr.h ../dist/include/mirsdrapi-rsp.h
           cp app/API/$ARCH/* ../dist
-          echo "* SDRPlay: 2.13.1" >> $GITHUB_WORKSPACE/release_notes.md
+          echo "* SDRPlay: 3.15" >> $GITHUB_WORKSPACE/release_notes.md
 
       - name: UHD download
         run: |
           mkdir uhd && cd uhd
-          wget -nv -O uhd.exe https://files.ettus.com/binaries/uhd/latest_release/4.1.0.5/Windows-10-x64/uhd_4.1.0.5-release_Win${ARCH}_VS2019.exe
+          wget -nv -O uhd.exe https://files.ettus.com/binaries/uhd/uhd_004.001.000.005-release/4.1.0.5/Windows-10-x64/uhd_4.1.0.5-release_Win${ARCH}_VS2019.exe
           7z x uhd.exe
           cp bin/uhd.dll ../dist
           cp lib/uhd.lib ../dist
@@ -188,25 +187,27 @@ jobs:
           rm dist/*.exe
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.7"
+          python-version: "3.9"
           architecture: ${{ matrix.architecture }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: win-${{ matrix.architecture }}
           path: dist
 
       - name: Check native backends
         run: |
+          export BLADERF_API_VERSION=2.5
           git clone --depth 1 https://github.com/jopohl/urh && cd urh
           mkdir src/urh/dev/native/lib/shared
           cp -r ../dist/* src/urh/dev/native/lib/shared/
           python --version
+          python -m pip install wheel
           python -m pip install -r data/requirements.txt
           python setup.py build_ext --inplace
-          python -m pip install .
+          python -m pip install . --no-build-isolation
           python data/check_native_backends.py
 
       - name: Create zip
