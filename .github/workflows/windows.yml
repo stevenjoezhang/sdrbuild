@@ -95,7 +95,7 @@ jobs:
 
       - name: HackRF build
         run: |
-          git clone --depth 1 https://github.com/greatscottgadgets/hackrf
+          git clone --branch v2024.02.1 --depth 1 https://github.com/greatscottgadgets/hackrf
           mkdir hackrf/host/build && cd hackrf/host/build
           cmake -A $CMAKE_ARCH -DCMAKE_BUILD_TYPE=Release\
                 -DLIBUSB_LIBRARIES=$GITHUB_WORKSPACE/libusb/VS2019/MS$ARCH_NUM/Release/lib/libusb-1.0.lib \
