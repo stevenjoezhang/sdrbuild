@@ -205,7 +205,7 @@ jobs:
           python --version
           python -m pip install -r data/requirements.txt
           python setup.py build_ext --inplace
-          python -m pip install .
+          python -m pip install . --no-build-isolation
           python data/check_native_backends.py
 
       - name: Create zip
