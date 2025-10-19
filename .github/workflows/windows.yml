@@ -122,7 +122,6 @@ jobs:
           cmake --install . --prefix $GITHUB_WORKSPACE/dist --config Release
           echo "* LimeSuite: `git show --format='%h (%s, %as)' --no-patch`" >> $GITHUB_WORKSPACE/release_notes.md
 
-
       - name: RTL-SDR build
         run: |
           git clone --depth 1 https://github.com/osmocom/rtl-sdr
@@ -162,12 +161,11 @@ jobs:
       - name: SDRPlay download
         run: |
           mkdir sdrplay && cd sdrplay
-          wget -nv -O sdrplay.exe https://www.sdrplay.com/software/SDRplay_RSP_API-Windows-2.13.1.exe
+          wget -nv -O sdrplay.exe https://www.sdrplay.com/software/SDRplay_RSP_API-Windows-3.15.exe
           innoextract sdrplay.exe
           cp app/API/inc/* ../dist/include
-          mv ../dist/include/mir_sdr.h ../dist/include/mirsdrapi-rsp.h
           cp app/API/$ARCH/* ../dist
-          echo "* SDRPlay: 2.13.1" >> $GITHUB_WORKSPACE/release_notes.md
+          echo "* SDRPlay: 3.15" >> $GITHUB_WORKSPACE/release_notes.md
 
       - name: UHD download
         run: |
