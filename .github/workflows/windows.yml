@@ -199,6 +199,7 @@ jobs:
 
       - name: Check native backends
         run: |
+          export BLADERF_API_VERSION=2.5
           git clone --depth 1 https://github.com/jopohl/urh && cd urh
           mkdir src/urh/dev/native/lib/shared
           cp -r ../dist/* src/urh/dev/native/lib/shared/
