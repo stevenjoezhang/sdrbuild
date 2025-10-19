@@ -86,6 +86,7 @@ jobs:
           echo "* AirSpy: `git show --format='%h (%s, %as)' --no-patch`" >> $GITHUB_WORKSPACE/release_notes.md
 
       - name: BladeRF download
+        if: ${{ matrix.architecture == 'x64' }}
         run: |
           wget -nv -O bladerf.exe -nv https://github.com/Nuand/bladeRF/releases/download/2024.05/bladeRF-win-installer-2024.05.exe
           innoextract bladerf.exe -d bladerf
