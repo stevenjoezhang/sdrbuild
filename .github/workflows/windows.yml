@@ -187,9 +187,9 @@ jobs:
           rm dist/*.exe
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.7"
+          python-version: "3.9"
           architecture: ${{ matrix.architecture }}
 
       - uses: actions/upload-artifact@v4
